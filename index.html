@@ -3167,96 +3167,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   
 
-    // === ADVANCED SLIDER LOADER ===
-function loadSlider() {
-    // Use '../' to go up one folder level to find slider.html
-    fetch('../slider.html')
-        .then(res => {
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            return res.text();
-        })
-        .then(html => {
-            const container = document.getElementById('slider-container');
-            if (!container) throw new Error('Slider container not found');
-            
-            container.innerHTML = html;
-            console.log('✅ Slider HTML loaded');
-            
-            // Re-execute scripts in the fetched HTML (critical for randomization)
-            const scripts = container.querySelectorAll('script');
-            scripts.forEach(oldScript => {
-                const newScript = document.createElement('script');
-                Array.from(oldScript.attributes).forEach(attr => 
-                    newScript.setAttribute(attr.name, attr.value)
-                );
-                newScript.textContent = oldScript.textContent;
-                oldScript.replaceWith(newScript);
-            });
-            
-            // Wait for Swiper to be available
-            const initSlider = () => {
-                if (typeof Swiper !== 'undefined') {
-                    if (window.mySwiperInstance) {
-                        window.mySwiperInstance.destroy(true, true);
-                    }
-                    
-                    window.mySwiperInstance = new Swiper('.mySwiper', {
-                        loop: true,
-                        grabCursor: true,
-                        effect: 'slide',
-                        speed: 600,
-                        autoplay: {
-                            delay: 3500,
-                            disableOnInteraction: false,
-                            pauseOnMouseEnter: true,
-                        },
-                        pagination: {
-                            el: '.swiper-pagination',
-                            clickable: true,
-                            dynamicBullets: true,
-                        },
-                        navigation: {
-                            nextEl: '.swiper-button-next',
-                            prevEl: '.swiper-button-prev',
-                        },
-                        keyboard: { enabled: true, onlyInViewport: true },
-                        a11y: {
-                            enabled: true,
-                            prevSlideMessage: 'Previous slide',
-                            nextSlideMessage: 'Next slide',
-                        }
-                    });
-                    console.log('✅ Swiper initialized');
-                } else {
-                    console.warn('⏳ Swiper not loaded yet, retrying...');
-                    setTimeout(initSlider, 100);
-                }
-            };
-            
-            initSlider();
-        })
-        .catch(err => {
-            console.error('❌ Slider error:', err);
-            const container = document.getElementById('slider-container');
-            if (container) {
-                container.innerHTML = `
-                    <div style="text-align:center;padding:40px;background:#fff5f5;border:2px dashed #00695c;border-radius:12px;margin:20px 0;">
-                        <div style="font-size:3rem;margin-bottom:1rem;">⚠️</div>
-                        <h3 style="color:#00695c;margin-bottom:0.5rem;">Slider Not Loading</h3>
-                        <p style="color:#666;margin-bottom:1rem;">${err.message}</p>
-                        <p style="font-size:0.9rem;color:#999;">Check browser console (F12) for details</p>
-                    </div>
-                `;
-            }
-        });
+   // Swiper - load dynamically with error handling
+(function loadSwiperAndInit() {
+const swiperScript = document.createElement('script');
+swiperScript.src = 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js';
+swiperScript.async = true; swiperScript.crossOrigin = 'anonymous';
+swiperScript.onload = () => {
+fetch('/slider.html').then(response => response.text()).then(html => {
+document.getElementById('slider-container').innerHTML = html;
+if (typeof Swiper !== 'undefined') {
+new Swiper('.mySwiper', {
+spaceBetween: 0,
+centeredSlides: true,
+autoplay: { delay: 1500, disableOnInteraction: false },
+pagination: { el: '.swiper-pagination', clickable: true },
+navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+loop: true,
+effect: 'fade',
+fadeEffect: { crossFade: true },
+touchRatio: 1,
+simulateTouch: true
+});
 }
-
-// Load slider when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadSlider);
-} else {
-    loadSlider();
-}
+}).catch(err => {
+console.error('Slider failed to load:', err);
+document.getElementById('slider-container').innerHTML = '<p style="text-align:center; padding:40px; color:#a30909; font-weight:600;">❌ Slider error: ' + err.message + '</p>';
+});
+};
+swiperScript.onerror = () => {
+console.error('Failed to load Swiper library.');
+document.getElementById('slider-container').innerHTML = '<p style="text-align:center; padding:40px; color:#a30909; font-weight:600;">❌ Failed to load Swiper library.</p>';
+};
+document.head.appendChild(swiperScript);
+})();
 });
 
 // ========== 🚀 DYNAMIC PRODUCT SCHEMA GENERATION ==========
