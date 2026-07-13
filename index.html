@@ -3167,9 +3167,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   
 
-   // === ADVANCED SLIDER LOADER ===
+    // === ADVANCED SLIDER LOADER ===
 function loadSlider() {
-    fetch('/nothingfancy/slider.html')
+    // Use '../' to go up one folder level to find slider.html
+    fetch('../slider.html')
         .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.text();
@@ -3195,7 +3196,6 @@ function loadSlider() {
             // Wait for Swiper to be available
             const initSlider = () => {
                 if (typeof Swiper !== 'undefined') {
-                    // Destroy existing instance if any
                     if (window.mySwiperInstance) {
                         window.mySwiperInstance.destroy(true, true);
                     }
@@ -3244,7 +3244,7 @@ function loadSlider() {
                         <div style="font-size:3rem;margin-bottom:1rem;">⚠️</div>
                         <h3 style="color:#00695c;margin-bottom:0.5rem;">Slider Not Loading</h3>
                         <p style="color:#666;margin-bottom:1rem;">${err.message}</p>
-                        <p style="font-size:0.9rem;color:#999;">Check browser console for details</p>
+                        <p style="font-size:0.9rem;color:#999;">Check browser console (F12) for details</p>
                     </div>
                 `;
             }
